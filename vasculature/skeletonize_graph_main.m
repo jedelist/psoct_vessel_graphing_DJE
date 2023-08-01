@@ -28,19 +28,21 @@ addpath(genpath(topdir));
 % The code is written to create a filepath with the following structure:
 % [dpath]\[subid]\[subdir]\[fname].[ext]
 
+%James' notes: All dir info commented out, will hardcode my own dir paths
+
 % Your local directory to the segmentation data
-dpath = 'C:\Users\mack\Documents\BU\Boas_Lab\psoct_data_and_figures\test_data\Ann_Mckee_samples_10T\';
+dpath = '/projectnb/npbssmic/ns/Hui_Wang_samples/'
 % Subject IDs
-subid = 'NC_6839';
-subdir = '\dist_corrected\volume\';
+subid = 'caa_17_DJE';    %caa_17
+subdir = '/caa17_fullfiles/';     %
 % Filename to parse (this is test data)
-fname = 'ref_4ds_norm_inv_cropped';
+fname = 'I_mosaic_1_0_0';      %I_mosaic_1_0_0 only b/c this is OCT volume
 % filename extension
-ext = '.tif';
+ext = '.mgz';
 % sigma for Gaussian smoothing
 gsigma = [7, 9, 11];
 % Voxel dimensions (verify this with Dylan or another RA at Martinos)
-vox_dim = [12, 12, 15];
+vox_dim = [10, 10, 10];
 % Volume of a single voxel (microns cubed)
 vox_vol = vox_dim(1) .* vox_dim(2) .* vox_dim(3);
 
@@ -48,11 +50,15 @@ vox_vol = vox_dim(1) .* vox_dim(2) .* vox_dim(3);
 
 % CHANGE THIS: This is the filepath to the original PSOCT volume with the
 % background (non-tissue voxels) removed (set to white).
-fullpath = fullfile(dpath, subid, subdir);
-filename = strcat(fullpath, strcat(fname, ext));
+fullpath = fullfile(dpath, subid, subdir);          %FIND WHICH ONE TO HARDCODE AND COMMENT OUT
+filename = strcat(fullpath, strcat(fname, ext));  %COMMENT THIS OUT AND HARDCODE PATH
 
 % Convert .tif to .MAT
-tissue = TIFF2MAT(filename);
+%tissue = TIFF2MAT(filename);
+
+% Read nii and convert to .MAT
+nii = MRIread(filename);
+tissue = nii.vol;
 
 % Invert so that non-tissue voxels are zeros
 tissue_inv = imcomplement(tissue);
@@ -70,11 +76,19 @@ vol = voxels .* vox_vol;
 % function to load the segmentation volume. This section uses "TIFF2MAT" to
 % load a TIF file into a Matlab matrix
 
+% Filename to parse (this is test data)
+fname = 'seg_mosaic_1_0_0';      %fin.seg_mosaic_1_0_0_DJE OR seg_mosaic_1_0_0
+% filename extension
+ext = '.mgz';
+
 % Define entire filepath 
 fullpath = fullfile(dpath, subid, subdir);
 filename = strcat(fullpath, strcat(fname, ext));
 % CHECK THIS: Convert .tif to .MAT
-segment = TIFF2MAT(filename);
+%segment = TIFF2MAT(filename);  % comment out for mgz file
+
+nii = MRIread(filename);
+segment = nii.vol;
 
 %% Skeletonize and convert to Graph
 % This section calls the function at the bottom of the script. This
@@ -91,6 +105,8 @@ segment_graph_data = seg_graph_init(segment, vox_dim, fullpath, filename);
 % NOTE: This section may require modification, depending on how you save
 % your data in the previous section. 
 
+met = struct();
+
 % Load graph and segmentation (angio)
 graph = segment_graph_data.Graph; % might be segment_graph_data.Data.Graph
 seg = segment_graph_data.angio;
@@ -104,19 +120,19 @@ nodepos = graph.segInfo.segPos;
 %%% Calculate total length (microns) from graph
 len = graph.segInfo.segLen_um;
 len_tot = sum(len(:));
-met(ii).total_length = len_tot;
+met.total_length = len_tot;
 
 %%% Calculate mean length (microns)
 len_avg = mean(len);
-met(ii).avg_length = len_avg;
+met.avg_length = len_avg;
 
-%%% Calculate length density
+%%% Calculate length density (length of vess/unit volume)
 len_density = len_tot ./ vol;
-met(ii).length_density = len_density;
+met.length_density = len_density;
 
 %%% Total number of vessels
 nves = length(len);
-met(ii).total_vessels = nves;
+met.total_vessels = nves;
 
 %%% tortuosity arc-chord ratio (curve length / euclidean)
 % Initalize matrix for storing tortuosity
@@ -133,13 +149,13 @@ for j=1:nves
     tort(j) = len(j) ./ euc;
 end
 % Add to metrics structures
-met(ii).tortuosity = mean(tort);   
+met.tortuosity = mean(tort);   
 
 % Save the output
 save(ad_cte_fout, 'met', '-v7.3');
 
 %% Function to skeletonize and convert to Graph
-function [Data] = seg_graph_init(seg, vox_dim, fullpath, fname_seg)
+function [Data] = seg_graph_init(seg, vox_dim, fullpath, fname_seg) % PRBLM fname_seg not initialized
 % Initialize graph from segmentation
 % INPUTS:
 %   seg (mat): segmentation matrix
