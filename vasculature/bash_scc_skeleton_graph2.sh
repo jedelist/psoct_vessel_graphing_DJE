@@ -16,7 +16,7 @@
 #$ -l h_rt=24:00:00
 
 # Name of job
-#$ -N segment
+#$ -N segment2
 
 # Combine output/error files into single file
 #$ -j y
