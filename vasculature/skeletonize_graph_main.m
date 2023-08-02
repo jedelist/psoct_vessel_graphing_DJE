@@ -178,5 +178,5 @@ Data.angio = angio;
 % Create new filename for graph and add .MAT extension
 fname_graph = strcat(fname_seg, '_graph_data.mat');
 fout = fullfile(fullpath, fname_graph);
-save(fout,'Data', '-v7.3');
+save(fname_graph,'Data', '-v7.3');
 end
