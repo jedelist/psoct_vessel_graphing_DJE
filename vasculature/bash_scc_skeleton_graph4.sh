@@ -16,10 +16,10 @@
 #$ -l h_rt=24:00:00
 
 # Name of job
-#$ -N segment2
+#$ -N segment4
 
 # Combine output/error files into single file
 #$ -j y
 
 module load matlab/2022b
-matlab -nodisplay -singleCompThread -r "skeletonize_graph_main2; exit"
+matlab -nodisplay -singleCompThread -r "skeletonize_graph_main4; exit"
