@@ -36,7 +36,7 @@ dpath = '/projectnb/npbssmic/ns/Hui_Wang_samples/'
 subid = 'caa_17_DJE';    %caa_17
 subdir = '/caa17_fullfiles/';     %
 % Filename to parse (this is test data)
-fname = 'I_mosaic_1_0_0';      %I_mosaic_1_0_0 only b/c this is OCT volume
+fname = 'I.extract1';      %I_mosaic_1_0_0 only b/c this is OCT volume
 % filename extension
 ext = '.mgz';
 % sigma for Gaussian smoothing
@@ -77,7 +77,7 @@ vol = voxels .* vox_vol;
 % load a TIF file into a Matlab matrix
 
 % Filename to parse (this is test data)
-fname = 'fin.seg_mosaic_1_0_0_DJE';      %fin.seg_mosaic_1_0_0_DJE OR seg_mosaic_1_0_0
+fname = 'fin.seg_caa26_DJE';      %fin.seg_mosaic_1_0_0_DJE OR seg_mosaic_1_0_0
 % filename extension
 ext = '.mgz';
 
